@@ -21,7 +21,7 @@ from datetime import datetime
 import smbus
 import sys
 import time
-
+import csv
 
 class Chirp(object):
     """Chirp soil moisture sensor with temperature and light sensors.
@@ -396,7 +396,10 @@ if __name__ == "__main__":
     print('Moisture  | Temp   | Brightness')
     print('-' * 31)
 
+    csvfile =  open('readings.csv', 'w')
     try:
+        csvwriter = csv.writer(csvfile, delimiter=',')
+        csvwriter.writerow(['moisture', 'moisture_percent', 'temperature', 'light'])
         # Endless loop, taking measurements.
         while True:
             # Trigger the sensors and take measurements.
@@ -405,6 +408,8 @@ if __name__ == "__main__":
             output = output.format(chirp.moist, chirp.moist_percent,
                                    chirp.temp, scale_sign, chirp.light)
             print(output)
+            csvwriter.writerow([chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
+
             # Adjust max and min measurement variables, used for calibrating
             # the sensor and allow using moisture percentage.
             if highest_measurement is not False:
@@ -424,3 +429,4 @@ if __name__ == "__main__":
         print('Lowest moisture measured:  {}'.format(lowest_measurement))
         print('Highest moisture measured: {}'.format(highest_measurement))
         print('Bye!')
+        csvfile.close()

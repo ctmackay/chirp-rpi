@@ -404,14 +404,14 @@ if __name__ == "__main__":
             csvfile = open(csvpath,'a')
             csvwriter = csv.writer(csvfile, delimiter=',')
             if newfile:
-                csvwriter.writerow(['moisture', 'moisture_percent', 'temperature', 'light'])
+                csvwriter.writerow(['datetime', 'moisture', 'moisture_percent', 'temperature', 'light'])
             # Trigger the sensors and take measurements.
             chirp.trigger()
             output = '{:d} {:4.1f}% | {:3.1f}{} | {:d}'
             output = output.format(chirp.moist, chirp.moist_percent,
                                    chirp.temp, scale_sign, chirp.light)
             print(output)
-            csvwriter.writerow([chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
+            csvwriter.writerow([datetime.now(), chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
 
             # Adjust max and min measurement variables, used for calibrating
             # the sensor and allow using moisture percentage.

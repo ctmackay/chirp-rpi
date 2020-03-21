@@ -18,6 +18,7 @@ https://github.com/Miceuz/i2c-moisture-sensor/blob/master/README.md
 from __future__ import division
 from datetime import datetime
 
+import os
 import smbus
 import sys
 import time
@@ -395,13 +396,15 @@ if __name__ == "__main__":
     print('Press Ctrl-C to exit.\n')
     print('Moisture  | Temp   | Brightness')
     print('-' * 31)
-
-    csvfile =  open('readings.csv', 'w')
+    csvpath = '/home/pi/moisture_readings.csv'
+    newfile = not os.path.exists(csvpath)
     try:
-        csvwriter = csv.writer(csvfile, delimiter=',')
-        csvwriter.writerow(['moisture', 'moisture_percent', 'temperature', 'light'])
         # Endless loop, taking measurements.
         while True:
+            csvfile = open(csvpath,'a')
+            csvwriter = csv.writer(csvfile, delimiter=',')
+            if newfile:
+                csvwriter.writerow(['moisture', 'moisture_percent', 'temperature', 'light'])
             # Trigger the sensors and take measurements.
             chirp.trigger()
             output = '{:d} {:4.1f}% | {:3.1f}{} | {:d}'
@@ -422,11 +425,11 @@ if __name__ == "__main__":
                     lowest_measurement = chirp.moist
             else:
                 lowest_measurement = chirp.moist
-            time.sleep(1)
+            time.sleep(300)
+            csvfile.close()
     except KeyboardInterrupt:
         print('\nCtrl-C Pressed! Exiting.\n')
     finally:
         print('Lowest moisture measured:  {}'.format(lowest_measurement))
         print('Highest moisture measured: {}'.format(highest_measurement))
         print('Bye!')
-        csvfile.close()

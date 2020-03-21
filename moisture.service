@@ -1,0 +1,15 @@
+[Unit]
+Description=Moisture Service
+After=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/code/chirp-rpi/chirp.py 0x20
+StandardInput=tty-force
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+

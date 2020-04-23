@@ -18,11 +18,13 @@ https://github.com/Miceuz/i2c-moisture-sensor/blob/master/README.md
 from __future__ import division
 from datetime import datetime
 
+import json
 import os
 import smbus
 import sys
 import time
 import csv
+from RabbitClient import RabbitClient
 
 class Chirp(object):
     """Chirp soil moisture sensor with temperature and light sensors.
@@ -357,6 +359,15 @@ if __name__ == "__main__":
     highest_measurement = False
     lowest_measurement = False
 
+    # initialize rabbitmq
+    user = 'pi'
+    password = 'WVk6rHsh6b87mP-'
+
+    topic = 'pi.plants.chirp'
+
+    RC = RabbitClient('cm-bb', user, password)
+    RC.create_connection()
+
     # Initialize the sensor.
     chirp = Chirp(address=addr,
                   read_moist=True,
@@ -411,11 +422,24 @@ if __name__ == "__main__":
             output = output.format(chirp.moist, chirp.moist_percent,
                                    chirp.temp, scale_sign, chirp.light)
             print(output)
-            csvwriter.writerow([datetime.now(), chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
 
+            # send to CSV
+            csvwriter.writerow([datetime.now(), chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
+            
             with open('/home/pi/current_moisture.txt','w') as mf:
                 mf.write(str(chirp.moist_percent))
 
+            # send to rabbit
+            payload = {
+                    'timestamp' : str(datetime.now()),
+                    'moisture': chirp.moist,
+                    'moisture_percent': chirp.moist_percent,
+                    'temperature': chirp.temp,
+                    'light': chirp.light,
+                    'sensor_name': os.uname()[1]
+                    }
+            pstring = json.dumps(payload)
+            RC.publish_to_topic(topic, pstring)
             # Adjust max and min measurement variables, used for calibrating
             # the sensor and allow using moisture percentage.
             if highest_measurement is not False:
@@ -436,3 +460,4 @@ if __name__ == "__main__":
         print('Lowest moisture measured:  {}'.format(lowest_measurement))
         print('Highest moisture measured: {}'.format(highest_measurement))
         print('Bye!')
+        RC.close_connection()

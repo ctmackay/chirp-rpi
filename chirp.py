@@ -351,8 +351,8 @@ if __name__ == "__main__":
     # These are only needed if you plan to use moist_percent.
     # If these values are not adjusted for your sensor the value for
     # moist_percent might go below 0% and above 100%
-    min_moist = 240
-    max_moist = 750
+    min_moist = 330
+    max_moist = 530
 
     highest_measurement = False
     lowest_measurement = False
@@ -412,6 +412,9 @@ if __name__ == "__main__":
                                    chirp.temp, scale_sign, chirp.light)
             print(output)
             csvwriter.writerow([datetime.now(), chirp.moist, chirp.moist_percent, chirp.temp, chirp.light])
+
+            with open('/home/pi/current_moisture.txt','w') as mf:
+                mf.write(str(chirp.moist_percent))
 
             # Adjust max and min measurement variables, used for calibrating
             # the sensor and allow using moisture percentage.

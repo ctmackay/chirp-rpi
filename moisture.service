@@ -1,6 +1,7 @@
 [Unit]
 Description=Moisture Service
-After=multi-user.target
+Wants=network-online.target
+After=network-online.target multi-user.target
 Conflicts=getty@tty1.service
 
 [Service]

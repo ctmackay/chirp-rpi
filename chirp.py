@@ -431,7 +431,7 @@ if __name__ == "__main__":
 
             # send to rabbit
             payload = {
-                    'timestamp' : str(datetime.now()),
+                    'timestamp' : datetime.utcnow().isoformat() + 'Z',
                     'moisture': chirp.moist,
                     'moisture_percent': chirp.moist_percent,
                     'temperature': chirp.temp,
